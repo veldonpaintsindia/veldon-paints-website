@@ -99,7 +99,7 @@ export default function PaintBrushCursor() {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mousemove', updateMousePosition);
 
-    const drawBrushIcon = (ctx: CanvasRenderingContext2D, mouseEvent: MouseEvent) => {
+    const drawBrushIcon = (ctx: CanvasRenderingContext2D, mouseEvent: MouseEvent | { clientX: number; clientY: number }) => {
       const x = mouseEvent.clientX;
       const y = mouseEvent.clientY;
 
