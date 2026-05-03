@@ -90,7 +90,7 @@ export default function PaintBrushCursor() {
       animationFrameRef.current = requestAnimationFrame(animate);
     };
 
-    let e = { clientX: 0, clientY: 0 };
+    let e: MouseEvent | { clientX: number; clientY: number } = { clientX: 0, clientY: 0 };
 
     const updateMousePosition = (event: MouseEvent) => {
       e = event;
