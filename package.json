@@ -1,0 +1,27 @@
+{
+  "name": "veldon-paints-website",
+  "version": "1.0.0",
+  "description": "Veldon Paints - Custom Industrial Paint Solutions",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "next": "^14.2.0",
+    "lucide-react": "^0.368.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.2",
+    "@types/node": "^20.10.6",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.33",
+    "tailwindcss": "^3.4.1"
+  }
+}
