@@ -23,7 +23,7 @@ export default function PaintBrushCursor() {
   const strokesRef = useRef<Stroke[]>([]);
   const lastStrokeTimeRef = useRef<number>(0);
   const currentColorIndexRef = useRef<number>(0);
-  const animationFrameRef = useRef<number>();
+  const animationFrameRef = useRef<number>(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
