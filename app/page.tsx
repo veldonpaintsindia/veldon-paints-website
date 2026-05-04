@@ -6,7 +6,7 @@ import { ArrowRight, FlaskConical, Shield, Truck, Factory, Paintbrush } from 'lu
 export const metadata: Metadata = {
   title: 'Veldon Paints — Industrial Paint Manufacturer, Hyderabad',
   description:
-    'Custom industrial paint formulations in bulk for Ramco Industries, Visaka Steel, and leading manufacturers. B2B paint manufacturer since 1975, Hyderabad.',
+    'Custom industrial paint formulations in bulk for steel fabricators, construction firms, and manufacturers across India. B2B paint manufacturer since 1975, Hyderabad.',
 };
 
 const capabilities = [
@@ -89,7 +89,7 @@ const productLines = [
   },
 ];
 
-const clients = ['Ramco Industries', 'Visaka Steel', 'Major Steel Fabricators', 'Construction Companies', 'Industrial Manufacturers'];
+const clients = ['Steel Fabricators', 'Construction Companies', 'Automotive Manufacturers', 'Heavy Equipment OEMs', 'Industrial Manufacturers'];
 
 export default function Home() {
   return (

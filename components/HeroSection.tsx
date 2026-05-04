@@ -161,7 +161,7 @@ export default function HeroSection() {
           </h1>
 
           <p className="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed">
-            We manufacture custom paint formulations in bulk — from 100 litres to 100+ tonnes — for Ramco Industries, Visaka Steel, and India's leading manufacturers.
+            We manufacture custom paint formulations in bulk — from 100 litres to 100+ tonnes — for India's leading steel fabricators, construction firms, and industrial manufacturers.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mb-12">

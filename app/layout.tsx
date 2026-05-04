@@ -14,7 +14,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: 'Veldon Paints | Industrial Paint Solutions',
   description:
-    'Custom industrial paint solutions for manufacturing. 35+ years of expertise in bulk paint formulations for Ramco, Visaka Steel, and leading manufacturers.',
+    'Custom industrial paint solutions for manufacturing. 35+ years of expertise in bulk paint formulations for steel fabricators, construction firms, and manufacturers across India.',
   keywords: [
     'industrial paint',
     'paint manufacturer',
