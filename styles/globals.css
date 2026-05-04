@@ -79,7 +79,11 @@ a:hover {
 /* Button resets */
 button {
   font-family: inherit;
-  cursor: pointer;
+  cursor: none;
+}
+
+a, button, input, select, textarea {
+  cursor: none;
 }
 
 button:focus-visible {

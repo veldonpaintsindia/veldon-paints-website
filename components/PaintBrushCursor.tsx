@@ -2,151 +2,160 @@
 
 import { useEffect, useRef } from 'react';
 
-interface Stroke {
+interface TrailPoint {
   x: number;
   y: number;
   color: string;
-  size: number;
   opacity: number;
-  startTime: number;
-  duration: number;
+  width: number;
+  timestamp: number;
 }
 
-const COLORS = ['#E63946', '#06A77D', '#C8922A', '#F8F5F0'];
-const STROKE_DURATION_MIN = 800;
-const STROKE_DURATION_MAX = 1200;
-const STROKE_SIZE = 12;
-const STROKE_INTERVAL = 20;
+const COLORS = ['#E63946', '#06A77D', '#C8922A', '#1B2A4A'];
+const TRAIL_LIFETIME = 1000;
+const TRAIL_MAX_WIDTH = 18;
+const TRAIL_MIN_WIDTH = 4;
 
 export default function PaintBrushCursor() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const strokesRef = useRef<Stroke[]>([]);
-  const lastStrokeTimeRef = useRef<number>(0);
-  const currentColorIndexRef = useRef<number>(0);
-  const animationFrameRef = useRef<number>(0);
+  const trailRef = useRef<TrailPoint[]>([]);
+  const colorIndexRef = useRef<number>(0);
+  const colorChangeCounterRef = useRef<number>(0);
+  const animFrameRef = useRef<number>(0);
+  const lastPosRef = useRef<{ x: number; y: number } | null>(null);
+  const brushPosRef = useRef<{ x: number; y: number }>({ x: -100, y: -100 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const now = Date.now();
+    const onMouseMove = (e: MouseEvent) => {
+      const x = e.clientX;
+      const y = e.clientY;
+      brushPosRef.current = { x, y };
 
-      if (now - lastStrokeTimeRef.current > STROKE_INTERVAL) {
-        const colorIndex = currentColorIndexRef.current % COLORS.length;
-        const stroke: Stroke = {
-          x: e.clientX,
-          y: e.clientY,
-          color: COLORS[colorIndex],
-          size: STROKE_SIZE,
-          opacity: 1,
-          startTime: now,
-          duration:
-            STROKE_DURATION_MIN +
-            Math.random() * (STROKE_DURATION_MAX - STROKE_DURATION_MIN),
-        };
-
-        strokesRef.current.push(stroke);
-        currentColorIndexRef.current += 1;
-        lastStrokeTimeRef.current = now;
+      // Change color every ~40 points for smooth color transitions
+      colorChangeCounterRef.current += 1;
+      if (colorChangeCounterRef.current > 40) {
+        colorIndexRef.current = (colorIndexRef.current + 1) % COLORS.length;
+        colorChangeCounterRef.current = 0;
       }
-    };
 
-    const animate = () => {
-      const now = Date.now();
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      strokesRef.current = strokesRef.current.filter((stroke) => {
-        const elapsed = now - stroke.startTime;
-        const progress = Math.min(elapsed / stroke.duration, 1);
-        const opacity = stroke.opacity * (1 - progress);
-
-        if (opacity <= 0) {
-          return false;
+      // Only add trail points if mouse actually moved
+      if (lastPosRef.current) {
+        const dx = x - lastPosRef.current.x;
+        const dy = y - lastPosRef.current.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist > 2) {
+          const speed = Math.min(dist, 30);
+          const width = TRAIL_MAX_WIDTH - (speed / 30) * (TRAIL_MAX_WIDTH - TRAIL_MIN_WIDTH);
+          trailRef.current.push({
+            x,
+            y,
+            color: COLORS[colorIndexRef.current],
+            opacity: 1,
+            width,
+            timestamp: Date.now(),
+          });
         }
-
-        ctx.save();
-        ctx.globalAlpha = opacity;
-
-        ctx.fillStyle = stroke.color;
-        ctx.beginPath();
-
-        const brushSize = stroke.size * (1 - progress * 0.3);
-        ctx.arc(stroke.x, stroke.y, brushSize / 2, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.restore();
-
-        return true;
-      });
-
-      drawBrushIcon(ctx, e);
-      animationFrameRef.current = requestAnimationFrame(animate);
+      }
+      lastPosRef.current = { x, y };
     };
 
-    let e: MouseEvent | { clientX: number; clientY: number } = { clientX: 0, clientY: 0 };
-
-    const updateMousePosition = (event: MouseEvent) => {
-      e = event;
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mousemove', updateMousePosition);
-
-    const drawBrushIcon = (ctx: CanvasRenderingContext2D, mouseEvent: MouseEvent | { clientX: number; clientY: number }) => {
-      const x = mouseEvent.clientX;
-      const y = mouseEvent.clientY;
-
+    const drawBrush = (x: number, y: number) => {
       ctx.save();
-
       ctx.translate(x, y);
-      ctx.rotate(-Math.PI / 4);
+      ctx.rotate(Math.PI / 6);
 
-      const brushWidth = 8;
-      const brushHeight = 24;
+      // Handle (stick)
+      ctx.fillStyle = '#8B5E3C';
+      ctx.beginPath();
+      ctx.roundRect(-3, -30, 6, 34, 2);
+      ctx.fill();
 
-      ctx.fillStyle = '#C8922A';
-      ctx.fillRect(-brushWidth / 2, 0, brushWidth, brushHeight);
+      // Ferrule (metal band)
+      ctx.fillStyle = '#C0C0C0';
+      ctx.fillRect(-4, 4, 8, 5);
 
-      ctx.fillStyle = '#E8E8E8';
-      ctx.fillRect(-brushWidth / 2, 0, brushWidth, brushHeight * 0.3);
-
-      ctx.fillStyle = '#2C2C2C';
-      ctx.fillRect(-brushWidth / 2, brushHeight * 0.25, brushWidth, 3);
+      // Bristles
+      const gradient = ctx.createLinearGradient(-5, 9, 5, 24);
+      gradient.addColorStop(0, COLORS[colorIndexRef.current]);
+      gradient.addColorStop(1, COLORS[(colorIndexRef.current + 1) % COLORS.length]);
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.moveTo(-5, 9);
+      ctx.lineTo(5, 9);
+      ctx.lineTo(3, 24);
+      ctx.lineTo(-3, 24);
+      ctx.closePath();
+      ctx.fill();
 
       ctx.restore();
     };
 
-    animationFrameRef.current = requestAnimationFrame(animate);
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const now = Date.now();
 
-    const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      // Remove expired points
+      trailRef.current = trailRef.current.filter(
+        (p) => now - p.timestamp < TRAIL_LIFETIME
+      );
+
+      // Draw trail as connected strokes
+      if (trailRef.current.length > 1) {
+        for (let i = 1; i < trailRef.current.length; i++) {
+          const prev = trailRef.current[i - 1];
+          const curr = trailRef.current[i];
+          const age = now - curr.timestamp;
+          const fade = 1 - age / TRAIL_LIFETIME;
+
+          ctx.save();
+          ctx.globalAlpha = fade * 0.85;
+          ctx.strokeStyle = curr.color;
+          ctx.lineWidth = curr.width * fade;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+
+          ctx.beginPath();
+          ctx.moveTo(prev.x, prev.y);
+          ctx.lineTo(curr.x, curr.y);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+
+      // Draw brush icon at cursor
+      drawBrush(brushPosRef.current.x, brushPosRef.current.y);
+
+      animFrameRef.current = requestAnimationFrame(animate);
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('mousemove', onMouseMove);
+    animFrameRef.current = requestAnimationFrame(animate);
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mousemove', updateMousePosition);
-      window.removeEventListener('resize', handleResize);
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animFrameRef.current);
     };
   }, []);
 
   return (
     <canvas
-      id="paint-cursor"
       ref={canvasRef}
-      className="fixed top-0 left-0 pointer-events-none z-9999"
+      className="fixed top-0 left-0 w-full h-full pointer-events-none"
+      style={{ zIndex: 9999, cursor: 'none' }}
     />
   );
 }
