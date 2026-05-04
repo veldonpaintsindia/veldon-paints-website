@@ -76,9 +76,8 @@ export default function AboutPage() {
                   we invested in technology, talent, and process excellence to stay ahead.
                 </p>
                 <p className="text-lg leading-relaxed">
-                  Today, we're trusted by leading manufacturers like Ramco Steel, Visaka
-                  Steel, and hundreds of other companies across automotive, heavy equipment,
-                  construction, and steel fabrication sectors. But we never lost sight of what
+                  Today, we're trusted by leading manufacturers across automotive, heavy equipment,
+                  construction, and steel fabrication sectors across India. But we never lost sight of what
                   made us successful: listening to customers and delivering exactly what they
                   need.
                 </p>
